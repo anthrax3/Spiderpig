@@ -1,0 +1,9 @@
+www
+downloads
+docs
+documents
+maths
+ftp
+test
+dev
+remote
