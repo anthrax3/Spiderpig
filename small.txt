@@ -1,0 +1,16 @@
+www
+downloads
+doc
+docs
+documents
+maths
+test
+ftp
+dev
+remote
+files
+crm
+upload
+download
+uploads
+downloads

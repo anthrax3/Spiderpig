@@ -5,8 +5,7 @@
 
 #HIT LIST
 ########
-#When i do ./spiderpig -h, trollop shows the file object ID - need to figure a better way of displaying this.
-#Need to sort out the chdir stuff, its a bit ugly and makes it difficult to pass files in the same folder as an argument - LP
+#could use Dir.exists? to decide whether or not to carry on processing.
 ########
 #END HIT LIST
 
@@ -17,10 +16,9 @@ require 'trollop'
 require 'colorize'
 require 'stringio'
 
-foldername = Time.now.strftime("%d%b%Y_%H%M%S")
-Dir.mkdir foldername
-Dir.chdir foldername
-# $stderr.reopen("/dev/null", "w")
+@foldername = Time.now.strftime("%d%b%Y_%H%M%S")
+Dir.mkdir @foldername
+$stderr.reopen("/dev/null", "w")
 
 def arguments
 
@@ -40,7 +38,7 @@ EOS
   opt :obey_robots, "Should we obey robots.txt? Default is true", :default => "True"
   opt :depth, "Spidering depth - Think before setting too large a value", :default => 2
   opt :user_agent, "Enter your own user agent string in double quotes!", :default => "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1"
-  opt :subdomains, "Provide your own list of subdomains", :default => File.open("../subdomains-top1mil-5000.txt", "r")
+  opt :subdomains, "subs", :default => "../subdomains-top1mil-5000.txt"
   opt :dns_server, "Provide a custom DNS server to use for subdomain lookups - Google resolver1 is the default", :default => "8.8.8.8"
   opt :proxy, "Specify a proxy server", :default => nil
   opt :proxyp, "Specify a proxy port", :default => nil
@@ -94,7 +92,7 @@ Anemone.crawl(subs, :depth_limit => arg[:depth], :obey_robots_txt => arg[:obey_r
   anemone.on_pages_like(/\b.+.pdf|\b.+.doc$|\b.+.docx$|\b.+.xls$|\b.+.xlsx$/) do |page|
     begin
       filename = File.basename(page.url.request_uri.to_s)
-      File.open(filename,"wb") {|f| f.write(page.body)}
+      File.open("#{@foldername}/#{filename}","wb") {|f| f.write(page.body)}
       puts "#{page.url}"
     rescue
       puts "error while downloading #{page.url}"
@@ -113,9 +111,13 @@ def metadata(files)
       Yomu.server(:metadata)
       metadata << Yomu.new(file).metadata
       Yomu.kill_server!
-    end
- metadata
+      end
+    metadata
+  end
 end
+
+def filecontent(files)
+#this function will parse the files for content
 end
 
 def printer(meta)
@@ -130,6 +132,7 @@ end
 arg = arguments
 subdomains = subdomains(arg)
 download(arg, subdomains)
-files = Dir.glob("*.*") #seems to work nicely - may cause problems if Tika can't process them? Well it is a beta after all ;)
+files = Dir.glob("#{@foldername}/*")
+puts files
 meta = metadata(files)
 printer(meta)
