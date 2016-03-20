@@ -133,6 +133,5 @@ arg = arguments
 subdomains = subdomains(arg)
 download(arg, subdomains)
 files = Dir.glob("#{@foldername}/*")
-puts files
 meta = metadata(files)
 printer(meta)
