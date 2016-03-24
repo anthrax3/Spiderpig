@@ -5,7 +5,11 @@
 
 #HIT LIST
 ########
-#could use Dir.exists? to decide whether or not to carry on processing.
+#Wildcard domains
+#Build password list
+#Look for keywords in files (RDP, SSH, VPN etc etc - things that might be useful in an external)
+#Look for IP addresses, phone numbers and email addresses in files.
+#use ruby .docx gem to get template folder?
 ########
 #END HIT LIST
 
@@ -14,7 +18,6 @@ require 'yomu'
 require 'resolv'
 require 'trollop'
 require 'colorize'
-require 'stringio'
 
 @foldername = Time.now.strftime("%d%b%Y_%H%M%S")
 Dir.mkdir @foldername
@@ -23,13 +26,20 @@ $stderr.reopen("/dev/null", "w")
 def arguments
 
 opts = Trollop::options do 
-  version "Spiderpig v0.9beta"
+  version "Spiderpig v0.9beta".blue
   banner <<-EOS
   
   Spiderpig is a document metadata harvester that relies on active spidering to find its documents. This is to
   provide an alternative to harvesters that use search results to identify documents. It requires either a full URL
   or a domain name. If you provide a domain name, it will do sub-domain brute forcing and then spider each site it finds.
   You can either use the default sub-domains file, or specify your own with a full path to that file.
+  Examples:
+  Test a URL:
+  ./spiderpig.rb -u http://www.website.com
+  Test a domain - This will do sub-domain enumeration with the default subs file:
+  ./spiderpig.rb -d website.com
+  Test domain with your own sub-domain file:
+  ./spiderpig.rb -d website.com -b mysubsfile.txt.colorize
  
 EOS
 
@@ -38,10 +48,11 @@ EOS
   opt :obey_robots, "Should we obey robots.txt? Default is true", :default => "True"
   opt :depth, "Spidering depth - Think before setting too large a value", :default => 2
   opt :user_agent, "Enter your own user agent string in double quotes!", :default => "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1"
-  opt :subdomains, "subs", :default => "../subdomains-top1mil-5000.txt"
+  opt :subdomains, "subs", :default => "subdomains-top1mil-5000.txt"
   opt :dns_server, "Provide a custom DNS server to use for subdomain lookups - Google resolver1 is the default", :default => "8.8.8.8"
   opt :proxy, "Specify a proxy server", :default => nil
   opt :proxyp, "Specify a proxy port", :default => nil
+  opt :dirtmode, "Dig within documents for sensitive data"
 
     if ARGV.empty?
       puts "Need Help? Try ./spiderpig --help or -h"
@@ -68,6 +79,7 @@ target = arg[:domain]
 File.open(arg[:subdomains],"r").each_line do |subdomain|
   Resolv.new(resolvers=[arg[:dns_server]])
     subdomain.chomp!
+    puts subdomain
   ip = Resolv.getaddress "#{subdomain}.#{target}" rescue ""
     if ip != nil
       puts "#{subdomain}.#{target} \t #{ip}"
@@ -81,10 +93,10 @@ end
 def download(arg, subdomains)
 
   if arg[:url]
-    puts "Searching For Files on #{arg[:url]}".colorize(:red) 
+    puts "\nSearching For Files on #{arg[:url]}".colorize(:red) 
   end
   if arg[:domain]
-    puts "Searching For Files on #{arg[:domain]} subdomains".colorize(:red)
+    puts "\nSearching For Files on #{arg[:domain]} subdomains".colorize(:red)
   end
 puts "Downloading Files:\n".colorize(:red)
 subdomains.each do |subs| 
@@ -105,7 +117,7 @@ end
 def metadata(files)
   metadata = []
     if !files.empty?
-    puts "\nReading MetaData From Files - This may take some time!".colorize(:red)
+    puts "\nReading MetaData From Files - This may take some time!\n".colorize(:red)
     files.each do |file|
       puts "Processing #{file}".colorize(:green)
       Yomu.server(:metadata)
@@ -117,7 +129,33 @@ def metadata(files)
 end
 
 def filecontent(files)
-#this function will parse the files for content
+  alltext = []
+  if !files.empty?
+    files.each do |file|
+      hash = {}
+      Yomu.server(:text)
+        hash[file] = Yomu.new(file).text
+      Yomu.kill_server!
+      alltext << hash
+    end
+  alltext
+  end
+end
+
+def emails(content)
+
+  email_regex = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}/i
+  puts "\nEmail addresses found in documents:".blue
+
+  content.each do |z|
+    z.each do |k, v|
+    email = v.to_s.scan email_regex
+    email.uniq!
+    if !email.empty?
+      puts "\n" + k.to_s + "\n" + email.join("\n").cyan
+    end
+  end
+end
 end
 
 def printer(meta)
@@ -126,6 +164,7 @@ def printer(meta)
     puts meta.map { |h| h["Author"] }.compact.reject(&:empty?).uniq
     puts "\nSoftware Used to Create Documents".colorize(:blue)
     puts meta.map { |h| h["producer"] }.compact.reject(&:empty?).uniq
+    puts meta.map { |h| h["Application-Name"] }.compact.reject(&:empty?).uniq
   end
 end
 
@@ -134,4 +173,6 @@ subdomains = subdomains(arg)
 download(arg, subdomains)
 files = Dir.glob("#{@foldername}/*")
 meta = metadata(files)
+content = filecontent(files)
+emails(content)
 printer(meta)
