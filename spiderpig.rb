@@ -9,7 +9,6 @@
 #Build password list
 #Look for keywords in files (RDP, SSH, VPN etc etc - things that might be useful in an external)
 #Look for IP addresses, phone numbers and email addresses in files.
-#use ruby .docx gem to get template folder?
 ########
 #END HIT LIST
 
@@ -21,7 +20,7 @@ require 'colorize'
 
 @foldername = Time.now.strftime("%d%b%Y_%H%M%S")
 Dir.mkdir @foldername
-$stderr.reopen("/dev/null", "w")
+# $stderr.reopen("/dev/null", "w")
 
 def arguments
 
@@ -77,9 +76,8 @@ target = arg[:domain]
   puts "Subdomain enumeration for #{target} beginning at #{Time.now.strftime("%H:%M:%S")}"
 
 File.open(arg[:subdomains],"r").each_line do |subdomain|
-  Resolv.new(resolvers=[arg[:dns_server]])
+  Resolv.new(resolvers=[arg[:dns_server], timeouts=0.5])
     subdomain.chomp!
-    puts subdomain
   ip = Resolv.getaddress "#{subdomain}.#{target}" rescue ""
     if ip != nil
       puts "#{subdomain}.#{target} \t #{ip}"
@@ -142,20 +140,38 @@ def filecontent(files)
   end
 end
 
+#Maybe have this print all content types, not just emails
+#If I 'scan' for keywords, like ssh, it will find all instances within a doc. Need to !scan maybe?
 def emails(content)
-
   email_regex = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}/i
-  puts "\nEmail addresses found in documents:".blue
 
+  puts "\nEmail addresses found in documents:".blue
+  
   content.each do |z|
     z.each do |k, v|
-    email = v.to_s.scan email_regex
-    email.uniq!
-    if !email.empty?
-      puts "\n" + k.to_s + "\n" + email.join("\n").cyan
+      email = v.to_s.scan email_regex
+      email.uniq!
+      if !email.empty?
+        puts "\n" + k.to_s + "\n" + email.join("\n").cyan
+      end
     end
   end
 end
+
+def ipaddr(content)
+  ip_regex = /\d+\.\d+\.\d+\.\d+/
+
+  puts "\nIP Addresses found in documents:".blue
+
+  content.each do |z|
+    z.each do |k, v|
+      ip = v.to_s.scan ip_regex
+      ip.uniq!
+      if !ip.empty?
+        puts "\n" + k.to_s + "\n" + ip.join("\n").cyan
+      end
+    end
+  end
 end
 
 def printer(meta)
@@ -171,8 +187,11 @@ end
 arg = arguments
 subdomains = subdomains(arg)
 download(arg, subdomains)
+numfiles = Dir["#{@foldername}/*"].length #number of files
+puts "Number of Files Downloaded: #{numfiles}".blue
 files = Dir.glob("#{@foldername}/*")
 meta = metadata(files)
 content = filecontent(files)
 emails(content)
+ipaddr(content)
 printer(meta)
