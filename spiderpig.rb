@@ -8,7 +8,7 @@
 #Wildcard domains
 #Build password list
 #Look for keywords in files (RDP, SSH, VPN etc etc - things that might be useful in an external)
-#Look for IP addresses, phone numbers and email addresses in files.
+#Look for phone numbers, and keywords.
 ########
 #END HIT LIST
 
@@ -17,10 +17,11 @@ require 'yomu'
 require 'resolv'
 require 'trollop'
 require 'colorize'
+require 'luhn'
 
 @foldername = Time.now.strftime("%d%b%Y_%H%M%S")
 Dir.mkdir @foldername
-# $stderr.reopen("/dev/null", "w")
+$stderr.reopen("/dev/null", "w")
 
 def arguments
 
@@ -51,7 +52,7 @@ EOS
   opt :dns_server, "Provide a custom DNS server to use for subdomain lookups - Google resolver1 is the default", :default => "8.8.8.8"
   opt :proxy, "Specify a proxy server", :default => nil
   opt :proxyp, "Specify a proxy port", :default => nil
-  opt :dirtmode, "Dig within documents for sensitive data"
+  opt :dirtmode, "Dig within documents for sensitive data. Currently IPs, credit card numbers, emails"
 
     if ARGV.empty?
       puts "Need Help? Try ./spiderpig --help or -h"
@@ -76,7 +77,7 @@ target = arg[:domain]
   puts "Subdomain enumeration for #{target} beginning at #{Time.now.strftime("%H:%M:%S")}"
 
 File.open(arg[:subdomains],"r").each_line do |subdomain|
-  Resolv.new(resolvers=[arg[:dns_server], timeouts=0.5])
+  Resolv.new(resolvers=[arg[:dns_server]])
     subdomain.chomp!
   ip = Resolv.getaddress "#{subdomain}.#{target}" rescue ""
     if ip != nil
@@ -126,25 +127,26 @@ def metadata(files)
   end
 end
 
-def filecontent(files)
+def filecontent(files, arg)
   alltext = []
+  if arg[:dirtmode]
   if !files.empty?
     files.each do |file|
       hash = {}
       Yomu.server(:text)
         hash[file] = Yomu.new(file).text
       Yomu.kill_server!
-      alltext << hash
+        alltext << hash
+      end
+    alltext
     end
-  alltext
   end
 end
 
-#Maybe have this print all content types, not just emails
-#If I 'scan' for keywords, like ssh, it will find all instances within a doc. Need to !scan maybe?
-def emails(content)
+def emails(content, arg)
   email_regex = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}/i
 
+  if arg[:dirtmode]
   puts "\nEmail addresses found in documents:".blue
   
   content.each do |z|
@@ -157,11 +159,13 @@ def emails(content)
     end
   end
 end
+end
 
-def ipaddr(content)
+def ipaddr(content, arg)
   ip_regex = /\d+\.\d+\.\d+\.\d+/
 
-  puts "\nIP Addresses found in documents:".blue
+  if arg[:dirtmode]
+    puts "\nIP Addresses found in documents:".blue
 
   content.each do |z|
     z.each do |k, v|
@@ -172,6 +176,27 @@ def ipaddr(content)
       end
     end
   end
+end
+end
+
+def cc(content, arg)
+  cc_regex =  /\b(?:\d[ -]*?){13,16}\b/
+  
+  if arg[:dirtmode]
+    puts "\nPossible Credit Card Number Found!!".blue
+
+  content.each do |z|
+    z.each do |k, v|
+      cc = v.to_s.scan cc_regex
+      cc.uniq!
+      cc.each { |card| card.gsub!(/-| /, "") }
+      cc.keep_if { |card| Luhn.valid? card }
+      if !cc.empty?
+        puts "\n" + k.to_s + "\n" + cc.join("\n").cyan
+      end
+    end
+  end
+end
 end
 
 def printer(meta)
@@ -187,11 +212,12 @@ end
 arg = arguments
 subdomains = subdomains(arg)
 download(arg, subdomains)
-numfiles = Dir["#{@foldername}/*"].length #number of files
+numfiles = Dir["#{@foldername}/*"].length
 puts "Number of Files Downloaded: #{numfiles}".blue
 files = Dir.glob("#{@foldername}/*")
 meta = metadata(files)
-content = filecontent(files)
-emails(content)
-ipaddr(content)
+content = filecontent(files, arg)
+emails(content, arg)
+ipaddr(content, arg)
+cc(content, arg)
 printer(meta)
