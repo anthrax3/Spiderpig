@@ -13,7 +13,7 @@ Most document metadata harvesters use search results to find documents. Spiderpi
 
 There are also options to obey the robots.txt (or not), use a proxy server, specify the spidering depth, specify a user agent string and specify a dns server:
 
-**-o, --obey-robots    Should we obey robots.txt? Default is true (default: True)
+**-o, --obey-robots    Should we obey robots.txt? Default is true (default: True)**
 
 **-e, --depth        Spidering depth - Think before setting too large a value (default: 2)**
 
