@@ -2,6 +2,7 @@
 #Give spiderpig a URL and it will download all .pdf and .doc documents and print the document metadata.
 #Alternatively, give spiderpig a domain, and it will brute force subdomains, then spider each full domain found.
 #It will then harvest metadata for each document.
+#https://github.com/hatlord/Spiderpig
 
 require 'anemone'
 require 'yomu'
