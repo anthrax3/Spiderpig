@@ -5,24 +5,24 @@ Most document metadata harvesters use search results to find documents. Spiderpi
 
 ### Basic usage
 
-./spiderpig -u http://www.somewebsite.com - Spiders the provided URL, downloads documents and prints out the document creator (potentially a username) and the software used to create the document.
+**./spiderpig -u http://www.somewebsite.com** - Spiders the provided URL, downloads documents and prints out the document creator (potentially a username) and the software used to create the document.
 
-./spiderpig -d somewebsite.com - Performs sub-domain brute forcing, then spiders each resolved name. Currently the default sub-domain list is 'domains.txt' which is included with Spiderpig. This is a slightly modified 'small.txt' from dirb - https://sourceforge.net/projects/dirb/
+**./spiderpig -d somewebsite.com** - Performs sub-domain brute forcing, then spiders each resolved name. Currently the default sub-domain list is 'domains.txt' which is included with Spiderpig. This is a slightly modified 'small.txt' from dirb - https://sourceforge.net/projects/dirb/
 
-./spiderpig -d somewebsite.com -b mysubdomains.txt - Specify your own subdomain text file for brute forcing.
+**./spiderpig -d somewebsite.com -b mysubdomains.txt** - Specify your own subdomain text file for brute forcing.
 
 There are also options to obey the robots.txt (or not), use a proxy server, specify the spidering depth, specify a user agent string and specify a dns server:
 
--o, --obey-robots    Should we obey robots.txt? Default is true (default: True)
+**-o, --obey-robots    Should we obey robots.txt? Default is true (default: True)
 
--e, --depth        Spidering depth - Think before setting too large a value (default: 2)
+**-e, --depth        Spidering depth - Think before setting too large a value (default: 2)**
 
--s, --user-agent     Enter your own user agent string in double quotes!
- (default: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0)Gecko/20100101 Firefox/40.1)
+**-s, --user-agent     Enter your own user agent string in double quotes!
+ (default: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0)Gecko/20100101 Firefox/40.1)**
  
--n, --dns-server     Provide a custom DNS server to use for subdomain lookups - Google resolver1 is the default (default:8.8.8.8)
+**-n, --dns-server     Provide a custom DNS server to use for subdomain lookups - Google resolver1 is the default (default:8.8.8.8)**
 
--p, --proxy              Specify a proxy server
+**-p, --proxy              Specify a proxy server**
 
 **-r, --proxyp             Specify a proxy port**
 
