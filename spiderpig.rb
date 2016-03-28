@@ -3,12 +3,17 @@
 #Alternatively, give spiderpig a domain, and it will brute force subdomains, then spider each full domain found.
 #It will then harvest metadata for each document.
 
-#HIT LIST
-########
-#Wildcard domains
-#Look for keywords in files (RDP, SSH, VPN etc etc - things that might be useful in an external)
-########
-#END HIT LIST
+banner = <<-FOO
+┈┈┏━╮╭━┓┈╭━━━━━━━━━━━━━━━╮
+┈┈┃┏┗┛┓┃╭┫SpiderPig v0.9b┃
+┈┈╰┓▋▋┏╯╯╰━━━━━━━━━━━━━━━╯
+┈╭━┻╮╲┗━━━━╮╭╮┈
+┈┃▎▎┃╲╲╲╲╲╲┣━╯┈
+┈╰━┳┻▅╯╲╲╲╲┃┈┈┈
+┈┈┈╰━┳┓┏┳┓┏╯┈┈┈
+┈┈┈┈┈┗┻┛┗┻┛┈┈┈┈
+FOO
+puts banner
 
 require 'anemone'
 require 'yomu'
@@ -19,7 +24,7 @@ require 'luhn'
 
 @foldername = Time.now.strftime("%d%b%Y_%H%M%S")
 Dir.mkdir @foldername
-# $stderr.reopen("/dev/null", "w")
+$stderr.reopen("/dev/null", "w")
 
 def arguments
 
