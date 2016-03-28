@@ -19,7 +19,7 @@ require 'luhn'
 
 @foldername = Time.now.strftime("%d%b%Y_%H%M%S")
 Dir.mkdir @foldername
-$stderr.reopen("/dev/null", "w")
+# $stderr.reopen("/dev/null", "w")
 
 def arguments
 
@@ -218,20 +218,25 @@ end
 
 def keywords(content, arg)
   if arg[:dirtmode]
-    file = File.open("keywords.txt")
+    wordarr = []
+    file = File.open("keywords.txt") do |f|
+      f.each_line do |line|
+        wordarr << line
+      end
     puts "\nPotentially Sensitive Data In Document".blue
   
-  file.each do |f|
     content.each do |z|
       z.each do |k, v|
-        keywords = v.to_s.scan /#{f}/i
+        wordarr.each do |w|
+        keywords = v.to_s.scan /#{w}/i
         keywords.uniq!
         if !keywords.empty?
-          puts "\n" + k.to_s + "\n" + keywords.join("\n").cyan
+          puts k.to_s + "\t" + keywords.join("\n").cyan
         end
       end
     end
   end
+end
 end
 end
 
