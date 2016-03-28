@@ -3,7 +3,7 @@ Spiderpig actively spiders a site, downloads all documents and parses out useful
 
 Most document metadata harvesters use search results to find documents. Spiderpig was created to provide an alternative to that.
 
-Basic usage:
+### Basic usage
 
 ./spiderpig -u http://www.somewebsite.com - Spiders the provided URL, downloads documents and prints out the document creator (potentially a username) and the software used to create the document.
 
@@ -24,12 +24,12 @@ There are also options to obey the robots.txt (or not), use a proxy server, spec
 
 -p, --proxy              Specify a proxy server
 
--r, --proxyp             Specify a proxy port
+**-r, --proxyp             Specify a proxy port**
 
 
 
 
-Dirtmode
+### Dirtmode
 
 Dirtmode is where things get a little more interesting. It is designed to find 'dirt' on your target organisation.
 Currently, Dirtmode will pull out the following information from all downloaded documents:
@@ -43,9 +43,9 @@ When running Dirtmode, you can also generate a wordlist. This simply builds a fl
 ./spiderpig -u http://www.somewebsite.com --dirtmode --passlist
 This will drop a 'passlist.txt' into the datestamped directory that contains all downloaded documents.
 
-Installation.
+### Installation
 Just run 'bundle install' from the cloned directory.
 
-Notes/Known issues.
-If you run into issues, comment out '$stderr.reopen("/dev/null", "w")' on line 27. This will send errors back to your console.
+### Notes/Known issues
+If you run into issues, comment out '**$stderr.reopen("/dev/null", "w")**' on line 27. This will send errors back to your console.
 If you get an error about not being able to create a listener, kill java and try again. This is because the Yomu metadata module uses Apache Tika (Java) to get data. This spawns a local server for faster processing. It often does not die correctly and holds onto the port it bound to.
