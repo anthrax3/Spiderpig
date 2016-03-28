@@ -6,9 +6,7 @@
 #HIT LIST
 ########
 #Wildcard domains
-#Build password list
 #Look for keywords in files (RDP, SSH, VPN etc etc - things that might be useful in an external)
-#Look for phone numbers, and keywords.
 ########
 #END HIT LIST
 
@@ -48,11 +46,12 @@ EOS
   opt :obey_robots, "Should we obey robots.txt? Default is true", :default => "True"
   opt :depth, "Spidering depth - Think before setting too large a value", :default => 2
   opt :user_agent, "Enter your own user agent string in double quotes!", :default => "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1"
-  opt :subdomains, "subs", :default => "subdomains-top1mil-5000.txt"
+  opt :subdomains, "subs", :default => "domains.txt"
   opt :dns_server, "Provide a custom DNS server to use for subdomain lookups - Google resolver1 is the default", :default => "8.8.8.8"
   opt :proxy, "Specify a proxy server", :default => nil
   opt :proxyp, "Specify a proxy port", :default => nil
   opt :dirtmode, "Dig within documents for sensitive data. Currently IPs, credit card numbers, emails"
+  opt :passlist, "Builds a wordlist from the content of all downloaded documents. Must be used with --dirtmode"
 
     if ARGV.empty?
       puts "Need Help? Try ./spiderpig --help or -h"
@@ -100,7 +99,7 @@ def download(arg, subdomains)
 puts "Downloading Files:\n".colorize(:red)
 subdomains.each do |subs| 
 Anemone.crawl(subs, :depth_limit => arg[:depth], :obey_robots_txt => arg[:obey_robots], :user_agent => arg[:user_agent], :proxy_host => arg[:proxy], :proxy_port => arg[:proxyp], :accept_cookies => true, :skip_query_strings => true) do |anemone|
-  anemone.on_pages_like(/\b.+.pdf|\b.+.doc$|\b.+.docx$|\b.+.xls$|\b.+.xlsx$/) do |page|
+  anemone.on_pages_like(/\b.+.pdf|\b.+.doc$|\b.+.docx$|\b.+.xls$|\b.+.xlsx$|\b.+.pages/) do |page|
     begin
       filename = File.basename(page.url.request_uri.to_s)
       File.open("#{@foldername}/#{filename}","wb") {|f| f.write(page.body)}
@@ -199,6 +198,43 @@ def cc(content, arg)
 end
 end
 
+def passlist(content, arg)
+  if arg[:passlist]
+    puts "\npasslist.txt generated".blue
+
+  content.each do |z|
+    z.each do |k, v|
+      words =  v.to_s.scan /\w+/
+      words.uniq!
+      if !words.empty?
+        out_file = File.new("#{@foldername}/passlist.txt", "w")
+        out_file.puts "\n" + words.join("\n").cyan
+        out_file close
+      end
+    end
+  end
+end
+end
+
+def keywords(content, arg)
+  if arg[:dirtmode]
+    file = File.open("keywords.txt")
+    puts "\nPotentially Sensitive Data In Document".blue
+  
+  file.each do |f|
+    content.each do |z|
+      z.each do |k, v|
+        keywords = v.to_s.scan /#{f}/i
+        keywords.uniq!
+        if !keywords.empty?
+          puts "\n" + k.to_s + "\n" + keywords.join("\n").cyan
+        end
+      end
+    end
+  end
+end
+end
+
 def printer(meta)
   if meta != nil
     puts "\nPotential Usernames (Document Creator)".colorize(:blue)
@@ -220,4 +256,6 @@ content = filecontent(files, arg)
 emails(content, arg)
 ipaddr(content, arg)
 cc(content, arg)
+passlist(content, arg)
+keywords(content, arg)
 printer(meta)
