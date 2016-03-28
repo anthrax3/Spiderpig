@@ -223,7 +223,7 @@ def keywords(content, arg)
       f.each_line do |line|
         wordarr << line
       end
-    puts "\nPotentially Sensitive Data In Document".blue
+    puts "\nPotentially Sensitive Data In Document(s)".blue
   
     content.each do |z|
       z.each do |k, v|
@@ -231,12 +231,12 @@ def keywords(content, arg)
         keywords = v.to_s.scan /#{w}/i
         keywords.uniq!
         if !keywords.empty?
-          puts k.to_s + "\t" + keywords.join("\n").cyan
+          printf "%-50s %s", k, keywords.join("").cyan
+          end
         end
       end
     end
   end
-end
 end
 end
 
