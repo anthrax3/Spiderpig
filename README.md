@@ -5,7 +5,7 @@ Most document metadata harvesters use search results to find documents. Spiderpi
 
 ### Basic usage
 
-**./spiderpig -u http://www.somewebsite.com - Spiders the provided URL, downloads documents and prints out the document creator (potentially a username) and the software used to create the document.**
+**./spiderpig -u http://www.somewebsite.com **- Spiders the provided URL, downloads documents and prints out the document creator (potentially a username) and the software used to create the document.
 
 **./spiderpig -d somewebsite.com** - Performs sub-domain brute forcing, then spiders each resolved name. Currently the default sub-domain list is 'domains.txt' which is included with Spiderpig. This is a slightly modified 'small.txt' from dirb - https://sourceforge.net/projects/dirb/
 
