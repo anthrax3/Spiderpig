@@ -3,6 +3,13 @@
 #Alternatively, give spiderpig a domain, and it will brute force subdomains, then spider each full domain found.
 #It will then harvest metadata for each document.
 
+require 'anemone'
+require 'yomu'
+require 'resolv'
+require 'trollop'
+require 'colorize'
+require 'luhn'
+
 banner = <<-FOO
 ┈┈┏━╮╭━┓┈╭━━━━━━━━━━━━━━━╮
 ┈┈┃┏┗┛┓┃╭┫SpiderPig v0.9b┃
@@ -13,14 +20,8 @@ banner = <<-FOO
 ┈┈┈╰━┳┓┏┳┓┏╯┈┈┈
 ┈┈┈┈┈┗┻┛┗┻┛┈┈┈┈
 FOO
-puts banner
+puts banner.light_magenta
 
-require 'anemone'
-require 'yomu'
-require 'resolv'
-require 'trollop'
-require 'colorize'
-require 'luhn'
 
 @foldername = Time.now.strftime("%d%b%Y_%H%M%S")
 Dir.mkdir @foldername
