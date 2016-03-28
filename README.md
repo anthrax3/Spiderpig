@@ -39,8 +39,9 @@ Currently, Dirtmode will pull out the following information from all downloaded 
 - IP Addresses
 - Keywords - See keywords.txt and add your own. This functionality is designed to find information that shouldn't be in the public domnain, for example passwords in documents, references to internal systems and administrative protocols etc. This could be edited to find whatever you like realistically. Feel free to make a request and I will endevour to add it.
 
-When running Dirtmode, you can also generate a wordlist. This simply builds a flat text file of all words seen in all documents. This can be useful in two ways. 1) As a file for sub-domain brute forcing and 2)As a password list for remote password attacks or hash cracking. Example usage:
-./spiderpig -u http://www.somewebsite.com --dirtmode --passlist
+When running Dirtmode, you can also generate a wordlist. This simply builds a flat text file of all words seen in all documents. This can be useful in two ways. 1) As a file for sub-domain brute forcing and 2) As a password list for remote password attacks or hash cracking. Example usage:
+
+**./spiderpig -u http://www.somewebsite.com --dirtmode --passlist**
 This will drop a 'passlist.txt' into the datestamped directory that contains all downloaded documents.
 
 ### Installation
@@ -49,3 +50,4 @@ Just run 'bundle install' from the cloned directory.
 ### Notes/Known issues
 If you run into issues, comment out '**$stderr.reopen("/dev/null", "w")**' on line 27. This will send errors back to your console.
 If you get an error about not being able to create a listener, kill java and try again. This is because the Yomu metadata module uses Apache Tika (Java) to get data. This spawns a local server for faster processing. It often does not die correctly and holds onto the port it bound to.
+Tested only on OSX El Capitan with ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14] although there is no reason why it shouldn't work on other systems.
