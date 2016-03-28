@@ -13,17 +13,13 @@ Basic usage:
 
 There are also options to obey the robots.txt (or not), use a proxy server, specify the spidering depth, specify a user agent string and specify a dns server:
 
-### -o, --obey-robots    Should we obey robots.txt? Default is true (default: True)
-
-### -e, --depth        Spidering depth - Think before setting too large a value (default: 2)
-
-### -s, --user-agent     Enter your own user agent string in double quotes!
-### (default: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0)Gecko/20100101 Firefox/40.1)
-### -n, --dns-server     Provide a custom DNS server to use for subdomain lookups - Google resolver1 is the default (default:8.8.8.8)
-
-### -p, --proxy              Specify a proxy server
-
-### -r, --proxyp             Specify a proxy port
+-o, --obey-robots    Should we obey robots.txt? Default is true (default: True)
+-e, --depth        Spidering depth - Think before setting too large a value (default: 2)
+-s, --user-agent     Enter your own user agent string in double quotes!
+ (default: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0)Gecko/20100101 Firefox/40.1)
+-n, --dns-server     Provide a custom DNS server to use for subdomain lookups - Google resolver1 is the default (default:8.8.8.8)
+-p, --proxy              Specify a proxy server
+-r, --proxyp             Specify a proxy port
 
 
 
