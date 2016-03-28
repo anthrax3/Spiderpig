@@ -41,5 +41,3 @@ Just run 'bundle install' from the cloned directory.
 Notes/Known issues.
 If you run into issues, comment out '$stderr.reopen("/dev/null", "w")' on line 27. This will send errors back to your console.
 If you get an error about not being able to create a listener, kill java and try again. This is because the Yomu metadata module uses Apache Tika (Java) to get data. This spawns a local server for faster processing. It often does not die correctly and holds onto the port it bound to.
-
-
