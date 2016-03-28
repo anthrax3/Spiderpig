@@ -50,4 +50,5 @@ Just run 'bundle install' from the cloned directory.
 ### Notes/Known issues
 If you run into issues, comment out '**$stderr.reopen("/dev/null", "w")**' on line 27. This will send errors back to your console.
 If you get an error about not being able to create a listener, kill java and try again. This is because the Yomu metadata module uses Apache Tika (Java) to get data. This spawns a local server for faster processing. It often does not die correctly and holds onto the port it bound to.
-Tested only on OSX El Capitan with ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14] although there is no reason why it shouldn't work on other systems.
+
+Tested on OSX El Capitan with ruby 2.2.0p0 (2014-12-25 revision 49005) [x86_64-darwin14] and Kali 2.0 Rolling. Should work on any system that can run Ruby.
