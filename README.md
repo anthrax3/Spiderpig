@@ -34,10 +34,10 @@ There are also options to obey the robots.txt (or not), use a proxy server, spec
 Dirtmode is where things get a little more interesting. It is designed to find 'dirt' on your target organisation.
 Currently, Dirtmode will pull out the following information from all downloaded documents:
 
-Email addresses
-Credit Card Numbers (Luhn/Mod10 validated)
-IP Addresses
-Keywords - See keywords.txt and add your own. This functionality is designed to find information that shouldn't be in the public domnain, for example passwords in documents, references to internal systems and administrative protocols etc. This could be edited to find whatever you like realistically. Feel free to make a request and I will endevour to add it.
+- Email addresses
+- Credit Card Numbers (Luhn/Mod10 validated)
+- IP Addresses
+- Keywords - See keywords.txt and add your own. This functionality is designed to find information that shouldn't be in the public domnain, for example passwords in documents, references to internal systems and administrative protocols etc. This could be edited to find whatever you like realistically. Feel free to make a request and I will endevour to add it.
 
 When running Dirtmode, you can also generate a wordlist. This simply builds a flat text file of all words seen in all documents. This can be useful in two ways. 1) As a file for sub-domain brute forcing and 2)As a password list for remote password attacks or hash cracking. Example usage:
 ./spiderpig -u http://www.somewebsite.com --dirtmode --passlist
