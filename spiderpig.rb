@@ -172,13 +172,13 @@ def ipaddr(content, arg)
   ip_regex = /\d+\.\d+\.\d+\.\d+/
 
   if arg[:dirtmode]
-    puts "\nIP Addresses found in documents:".blue
+    puts "\nPossible IP Addresses found in documents:".blue
 
   content.each do |z|
     z.each do |k, v|
       ip = v.to_s.scan ip_regex
       ip.uniq!
-      ip.keep_if { |ip| IPAddress.valid? ip}
+      ip.keep_if { |ip| IPAddress.valid? ip }
       if !ip.empty?
         puts "\n" + k.to_s + "\n" + ip.join("\n").cyan
       end
@@ -217,7 +217,7 @@ def passlist(content, arg)
       words.uniq!
       if !words.empty?
         out_file = File.new("#{@foldername}/passlist.txt", "w")
-        out_file.puts "\n" + words.join("\n").cyan
+          out_file.puts "\n" + words.join("\n").cyan
         out_file close
       end
     end

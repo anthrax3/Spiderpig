@@ -16,6 +16,8 @@ datacentre
 /u
 :u
 :p
+-u
+-p
 --user
 --pass
 --password
@@ -28,3 +30,15 @@ d:
 database
 sql
 oracle
+su -
+sudo
+useradd
+usermod
+userdel
+passwd
+chmod
+chown
+/etc/shadow
+/etc/passwd
+system32
+winnt
