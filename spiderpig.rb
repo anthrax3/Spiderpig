@@ -10,11 +10,12 @@ require 'resolv'
 require 'trollop'
 require 'colorize'
 require 'luhn'
+require 'ipaddress'
 
 banner = <<-FOO
-┈┈┏━╮╭━┓┈╭━━━━━━━━━━━━━━━╮
-┈┈┃┏┗┛┓┃╭┫SpiderPig v0.9b┃
-┈┈╰┓▋▋┏╯╯╰━━━━━━━━━━━━━━━╯
+┈┈┏━╮╭━┓┈╭━━━━━━━━━━━━━━━━╮
+┈┈┃┏┗┛┓┃╭┫SpiderPig v0.95b┃
+┈┈╰┓▋▋┏╯╯╰━━━━━━━━━━━━━━━━╯
 ┈╭━┻╮╲┗━━━━╮╭╮┈
 ┈┃▎▎┃╲╲╲╲╲╲┣━╯┈
 ┈╰━┳┻▅╯╲╲╲╲┃┈┈┈
@@ -31,7 +32,7 @@ $stderr.reopen("/dev/null", "w")
 def arguments
 
 opts = Trollop::options do 
-  version "Spiderpig v0.9beta".blue
+  version "Spiderpig v0.95beta".blue
   banner <<-EOS
   
   Spiderpig is a document metadata harvester that relies on active spidering to find its documents. This is to
@@ -177,6 +178,7 @@ def ipaddr(content, arg)
     z.each do |k, v|
       ip = v.to_s.scan ip_regex
       ip.uniq!
+      ip.keep_if { |ip| IPAddress.valid? ip}
       if !ip.empty?
         puts "\n" + k.to_s + "\n" + ip.join("\n").cyan
       end
