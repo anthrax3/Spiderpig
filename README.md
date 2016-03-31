@@ -46,6 +46,7 @@ This will drop a 'passlist.txt' into the datestamped directory that contains all
 
 ### Installation
 Just run 'bundle install' from the cloned directory.
+If you don't have bundler installed, 'sudo gem install bundle' should do it.
 
 ### Notes/Known issues
 If you run into issues, comment out '**$stderr.reopen("/dev/null", "w")**' on line 27. This will send errors back to your console.
