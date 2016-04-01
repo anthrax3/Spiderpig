@@ -106,8 +106,17 @@ def download(arg, subdomains)
   end
 puts "Downloading Files:\n".colorize(:red)
 subdomains.each do |subs| 
-Anemone.crawl(subs, :depth_limit => arg[:depth], :obey_robots_txt => arg[:obey_robots], :user_agent => arg[:user_agent], :proxy_host => arg[:proxy], :proxy_port => arg[:proxyp], :accept_cookies => true, :skip_query_strings => true) do |anemone|
-  anemone.on_pages_like(/\b.+.pdf|\b.+.doc$|\b.+.docx$|\b.+.xls$|\b.+.xlsx$|\b.+.pages/) do |page|
+Anemone.crawl(
+    subs,
+    :depth_limit => arg[:depth], 
+    :obey_robots_txt => arg[:obey_robots],
+    :user_agent => arg[:user_agent],
+    :proxy_host => arg[:proxy],
+    :proxy_port => arg[:proxyp],
+    :accept_cookies => true,
+    :skip_query_strings => true
+  ) do |anemone|
+    anemone.on_pages_like(/\b.+.pdf|\b.+.doc$|\b.+.docx$|\b.+.xls$|\b.+.xlsx$|\b.+.pages/) do |page|
     begin
       filename = File.basename(page.url.request_uri.to_s)
       File.open("#{@foldername}/#{filename}","wb") {|f| f.write(page.body)}
