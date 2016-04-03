@@ -31,7 +31,8 @@ There are also options to obey the robots.txt (or not), use a proxy server, spec
 Note - Exif mode is currently 'standalone' - i.e, not to be used in conjuction with other options. Example:
 ./spiderpig -u http://somewebsite.com --exif
 Exif mode also drops a gmaps.csv file that is google maps import compatible. That means you can see a map of where all the images were taken, as below:
-![Map Output]({{site.baseurl}}//Screenshot%202016-04-03%2018.57.23.png)
+
+![Google Maps](https://cloud.githubusercontent.com/assets/5301488/14234060/0d51ac24-f9d1-11e5-873c-b5d7a4c121a3.png)
 
 
 
