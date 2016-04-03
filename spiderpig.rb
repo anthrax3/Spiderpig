@@ -26,7 +26,7 @@ puts banner.light_magenta
 
 @foldername = Time.now.strftime("%d%b%Y_%H%M%S")
 Dir.mkdir @foldername
-# $stderr.reopen("/dev/null", "w")
+$stderr.reopen("/dev/null", "w")
 
 def arguments
 
@@ -267,6 +267,7 @@ end
 
 def exif(files, arg)
   exifarray = []
+  exifarray << "ImageName,Latitude,Longitude"
 
   if arg[:exif]
     if !files.empty?
@@ -274,6 +275,7 @@ def exif(files, arg)
         exif = Exiftool.new(z)
         exifh = exif.to_hash
         if exifh.has_key?(:gps_latitude)
+            exifarray << "#{exifh[:file_name]},#{exifh[:gps_latitude]},#{exifh[:gps_longitude]}"
           puts "#{"\n" + exifh[:file_name].blue + "\n" + exifh[:gps_latitude].to_s.yellow + " " + exifh[:gps_longitude].to_s.magenta}"
         else
           puts "#{"\n" + exifh[:file_name]} ***Image did not contain GPS data***".red
@@ -282,6 +284,10 @@ def exif(files, arg)
           puts "#{exifh[:make] + ' ' + exifh[:model] + ' ' + exifh[:software].to_s}".green
         end
       end
+      gmaps = File.new("#{@foldername}/gmaps.csv", "w")
+        gmaps.puts exifarray
+      gmaps.close
+        puts "\nGoogle Maps Compatible CSV Written to #{@foldername}gmaps.csv".blue
     end
   end
 end
