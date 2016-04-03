@@ -287,7 +287,7 @@ def exif(files, arg)
       gmaps = File.new("#{@foldername}/gmaps.csv", "w")
         gmaps.puts exifarray
       gmaps.close
-        puts "\nGoogle Maps Compatible CSV Written to #{@foldername}gmaps.csv".blue
+        puts "\nGoogle Maps Compatible CSV Written to #{@foldername}/gmaps.csv".blue
     end
   end
 end
