@@ -26,7 +26,7 @@ There are also options to obey the robots.txt (or not), use a proxy server, spec
 
 **-r, --proxyp             Specify a proxy port**
 
-**  -x, --exif               Downloads image files and parses them for Exif GeoTags, camera make and model**
+**-x, --exif               Downloads image files and parses them for Exif GeoTags, camera make and model**
 
 Note - Exif mode is currently 'standalone' - i.e, not to be used in conjuction with other options. Example:
 ./spiderpig -u http://somewebsite.com --exif
