@@ -1,7 +1,4 @@
 #!/usr/bin/env ruby
-#Give spiderpig a URL and it will download all .pdf and .doc documents and print the document metadata.
-#Alternatively, give spiderpig a domain, and it will brute force subdomains, then spider each full domain found.
-#It will then harvest metadata for each document.
 #https://github.com/hatlord/Spiderpig
 
 require 'anemone'
@@ -11,6 +8,8 @@ require 'trollop'
 require 'colorize'
 require 'luhn'
 require 'ipaddress'
+require 'exiftool'
+require 'pp'
 
 banner = <<-FOO
 ┈┈┏━╮╭━┓┈╭━━━━━━━━━━━━━━━━╮
@@ -27,7 +26,7 @@ puts banner.light_magenta
 
 @foldername = Time.now.strftime("%d%b%Y_%H%M%S")
 Dir.mkdir @foldername
-$stderr.reopen("/dev/null", "w")
+# $stderr.reopen("/dev/null", "w")
 
 def arguments
 
@@ -60,6 +59,7 @@ EOS
   opt :proxyp, "Specify a proxy port", :default => nil
   opt :dirtmode, "Dig within documents for sensitive data. Currently IPs, credit card numbers, emails"
   opt :passlist, "Builds a wordlist from the content of all downloaded documents. Must be used with --dirtmode"
+  opt :exif, "Downloads image files and parses them for Exif GeoTags"
 
     if ARGV.empty?
       puts "Need Help? Try ./spiderpig --help or -h"
@@ -78,25 +78,31 @@ def subdomains(arg)
     if arg[:url]
       subs << arg[:url]
     end
+  
+  target = arg[:domain]
+    if arg[:domain]
+      puts "Subdomain enumeration for #{target} beginning at #{Time.now.strftime("%H:%M:%S")}"
 
-target = arg[:domain]
-  if arg[:domain]
-  puts "Subdomain enumeration for #{target} beginning at #{Time.now.strftime("%H:%M:%S")}"
-
-File.open(arg[:subdomains],"r").each_line do |subdomain|
-  Resolv.new(resolvers=[arg[:dns_server]])
-    subdomain.chomp!
-  ip = Resolv.getaddress "#{subdomain}.#{target}" rescue ""
-    if ip != nil
-      puts "#{subdomain}.#{target} \t #{ip}"
+  File.open(arg[:subdomains],"r").each_line do |subdomain|
+    Resolv.new(resolvers=[arg[:dns_server]])
+      subdomain.chomp!
+    ip = Resolv.getaddress "#{subdomain}.#{target}" rescue ""
+      if ip != nil
+        puts "#{subdomain}.#{target} \t #{ip}"
       subs << "http://#{subdomain}.#{target}"
+      end
     end
   end
-end
 subs
 end
 
 def download(arg, subdomains)
+  
+  if !arg[:exif]
+    doc = /\b.+.pdf|\b.+.doc$|\b.+.docx$|\b.+.xls$|\b.+.xlsx$|\b.+.pages/i
+  else
+    doc = /\b.+.jpg|\b.+.tiff/i
+  end
 
   if arg[:url]
     puts "\nSearching For Files on #{arg[:url]}".colorize(:red) 
@@ -104,9 +110,10 @@ def download(arg, subdomains)
   if arg[:domain]
     puts "\nSearching For Files on #{arg[:domain]} subdomains".colorize(:red)
   end
+
 puts "Downloading Files:\n".colorize(:red)
 subdomains.each do |subs| 
-Anemone.crawl(
+  Anemone.crawl(
     subs,
     :depth_limit => arg[:depth], 
     :obey_robots_txt => arg[:obey_robots],
@@ -116,7 +123,7 @@ Anemone.crawl(
     :accept_cookies => true,
     :skip_query_strings => true
   ) do |anemone|
-    anemone.on_pages_like(/\b.+.pdf|\b.+.doc$|\b.+.docx$|\b.+.xls$|\b.+.xlsx$|\b.+.pages/) do |page|
+      anemone.on_pages_like(doc) do |page|
     begin
       filename = File.basename(page.url.request_uri.to_s)
       File.open("#{@foldername}/#{filename}","wb") {|f| f.write(page.body)}
@@ -129,9 +136,9 @@ Anemone.crawl(
   end
 end
 
-def metadata(files)
+def metadata(files, arg)
   metadata = []
-    if !files.empty?
+    if !files.empty? and !arg[:exif]
     puts "\nReading MetaData From Files - This may take some time!\n".colorize(:red)
     files.each do |file|
       puts "Processing #{file}".colorize(:green)
@@ -146,7 +153,7 @@ end
 def filecontent(files, arg)
   alltext = []
   if arg[:dirtmode]
-  if !files.empty?
+  if !files.empty? and !arg[:exif]
     files.each do |file|
       hash = {}
       Yomu.server(:text)
@@ -258,6 +265,27 @@ def keywords(content, arg)
 end
 end
 
+def exif(files, arg)
+  exifarray = []
+
+  if arg[:exif]
+    if !files.empty?
+      files.each do |z|
+        exif = Exiftool.new(z)
+        exifh = exif.to_hash
+        if exifh.has_key?(:gps_latitude)
+          puts "#{"\n" + exifh[:file_name].blue + "\n" + exifh[:gps_latitude].to_s.yellow + " " + exifh[:gps_longitude].to_s.magenta}"
+        else
+          puts "#{"\n" + exifh[:file_name]} ***Image did not contain GPS data***".red
+        end
+        if exifh.has_key?(:make)
+          puts "#{exifh[:make] + ' ' + exifh[:model] + ' ' + exifh[:software].to_s}".green
+        end
+      end
+    end
+  end
+end
+
 def printer(meta)
   if meta != nil
     puts "\nPotential Usernames (Document Creator)".colorize(:blue)
@@ -274,11 +302,12 @@ download(arg, subdomains)
 numfiles = Dir["#{@foldername}/*"].length
 puts "Number of Files Downloaded: #{numfiles}".blue
 files = Dir.glob("#{@foldername}/*")
-meta = metadata(files)
+meta = metadata(files, arg)
 content = filecontent(files, arg)
 emails(content, arg)
 ipaddr(content, arg)
 cc(content, arg)
 keywords(content, arg)
+exif(files, arg)
 printer(meta)
 passlist(content, arg)
