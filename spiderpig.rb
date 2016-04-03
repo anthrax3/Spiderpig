@@ -9,7 +9,7 @@ require 'colorize'
 require 'luhn'
 require 'ipaddress'
 require 'exiftool'
-require 'pp'
+require 'exiftool_vendored'
 
 banner = <<-FOO
 ┈┈┏━╮╭━┓┈╭━━━━━━━━━━━━━━━━╮
