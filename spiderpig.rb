@@ -294,9 +294,9 @@ end
 
 def printer(meta)
   if meta != nil
-    puts "\nPotential Usernames (Document Creator)".colorize(:blue)
+    puts "\nPotential Usernames (Document Creator)".light_blue
     puts meta.map { |h| h["Author"] }.compact.reject(&:empty?).uniq
-    puts "\nSoftware Used to Create Documents".colorize(:blue)
+    puts "\nSoftware Used to Create Documents".light_blue
     puts meta.map { |h| h["producer"] }.compact.reject(&:empty?).uniq
     puts meta.map { |h| h["Application-Name"] }.compact.reject(&:empty?).uniq
   end
