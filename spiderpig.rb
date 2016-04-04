@@ -31,7 +31,7 @@ $stderr.reopen("/dev/null", "w")
 def arguments
 
 opts = Trollop::options do 
-  version "Spiderpig v0.95beta".blue
+  version "Spiderpig v0.95beta".light_blue
   banner <<-EOS
   
   Spiderpig is a document metadata harvester that relies on active spidering to find its documents. This is to
@@ -44,7 +44,7 @@ opts = Trollop::options do
   Test a domain - This will do sub-domain enumeration with the default subs file:
   ./spiderpig.rb -d website.com
   Test domain with your own sub-domain file:
-  ./spiderpig.rb -d website.com -b mysubsfile.txt.colorize
+  ./spiderpig.rb -d website.com -b mysubsfile.txt
  
 EOS
 
@@ -170,7 +170,7 @@ def emails(content, arg)
   email_regex = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}/i
 
   if arg[:dirtmode]
-  puts "\nEmail addresses found in documents:".blue
+  puts "\nEmail addresses found in documents:".light_blue
   
   content.each do |z|
     z.each do |k, v|
@@ -188,7 +188,7 @@ def ipaddr(content, arg)
   ip_regex = /\d+\.\d+\.\d+\.\d+/
 
   if arg[:dirtmode]
-    puts "\nPossible IP Addresses found in documents:".blue
+    puts "\nPossible IP Addresses found in documents:".light_blue
 
   content.each do |z|
     z.each do |k, v|
@@ -207,7 +207,7 @@ def cc(content, arg)
   cc_regex =  /\b(?:\d[ -]*?){13,16}\b/
   
   if arg[:dirtmode]
-    puts "\nPossible Credit Card Number Found!!".blue
+    puts "\nPossible Credit Card Number Found!!".light_blue
 
   content.each do |z|
     z.each do |k, v|
@@ -225,7 +225,7 @@ end
 
 def passlist(content, arg)
   if arg[:passlist]
-    puts "\npasslist.txt generated".blue
+    puts "\npasslist.txt generated".light_blue
 
   content.each do |z|
     z.each do |k, v|
@@ -248,7 +248,7 @@ def keywords(content, arg)
       f.each_line do |line|
         wordarr << line
       end
-    puts "\nPotentially Sensitive Data In Document(s)".blue
+    puts "\nPotentially Sensitive Data In Document(s)".light_blue
   
     content.each do |z|
       z.each do |k, v|
@@ -276,7 +276,7 @@ def exif(files, arg)
         exifh = exif.to_hash
         if exifh.has_key?(:gps_latitude)
             exifarray << "#{exifh[:file_name]},#{exifh[:gps_latitude]},#{exifh[:gps_longitude]}"
-          puts "#{"\n" + exifh[:file_name].blue + "\n" + exifh[:gps_latitude].to_s.yellow + " " + exifh[:gps_longitude].to_s.magenta}"
+          puts "#{"\n" + exifh[:file_name].light_blue + "\n" + exifh[:gps_latitude].to_s.yellow + " " + exifh[:gps_longitude].to_s.magenta}"
         else
           puts "#{"\n" + exifh[:file_name]} ***Image did not contain GPS data***".red
         end
@@ -287,7 +287,7 @@ def exif(files, arg)
       gmaps = File.new("#{@foldername}/gmaps.csv", "w")
         gmaps.puts exifarray
       gmaps.close
-        puts "\nGoogle Maps Compatible CSV Written to #{@foldername}/gmaps.csv".blue
+        puts "\nGoogle Maps Compatible CSV Written to #{@foldername}/gmaps.csv".light_blue
     end
   end
 end
@@ -306,7 +306,7 @@ arg = arguments
 subdomains = subdomains(arg)
 download(arg, subdomains)
 numfiles = Dir["#{@foldername}/*"].length
-puts "Number of Files Downloaded: #{numfiles}".blue
+puts "Number of Files Downloaded: #{numfiles}".light_blue
 files = Dir.glob("#{@foldername}/*")
 meta = metadata(files, arg)
 content = filecontent(files, arg)
