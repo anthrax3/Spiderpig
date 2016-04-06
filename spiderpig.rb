@@ -11,7 +11,7 @@ require 'ipaddress'
 require 'exiftool'
 require 'exiftool_vendored'
 
-banner = <<-FOO
+banner = <<-OINK
 ┈┈┏━╮╭━┓┈╭━━━━━━━━━━━━━━━━╮
 ┈┈┃┏┗┛┓┃╭┫SpiderPig v0.95b┃
 ┈┈╰┓▋▋┏╯╯╰━━━━━━━━━━━━━━━━╯
@@ -20,7 +20,7 @@ banner = <<-FOO
 ┈╰━┳┻▅╯╲╲╲╲┃┈┈┈
 ┈┈┈╰━┳┓┏┳┓┏╯┈┈┈
 ┈┈┈┈┈┗┻┛┗┻┛┈┈┈┈
-FOO
+OINK
 puts banner.light_magenta
 
 
@@ -60,6 +60,7 @@ EOS
   opt :dirtmode, "Dig within documents for sensitive data. Currently IPs, credit card numbers, emails"
   opt :passlist, "Builds a wordlist from the content of all downloaded documents. Must be used with --dirtmode"
   opt :exif, "Downloads image files and parses them for Exif GeoTags"
+  opt :offline, "Harvest Files You Already Have"
 
     if ARGV.empty?
       puts "Need Help? Try ./spiderpig --help or -h"
@@ -105,13 +106,13 @@ def download(arg, subdomains)
   end
 
   if arg[:url]
-    puts "\nSearching For Files on #{arg[:url]}".colorize(:red) 
+    puts "\nSearching For Files on #{arg[:url]}".red
   end
   if arg[:domain]
-    puts "\nSearching For Files on #{arg[:domain]} subdomains".colorize(:red)
+    puts "\nSearching For Files on #{arg[:domain]} subdomains".red
   end
 
-puts "Downloading Files:\n".colorize(:red)
+puts "Downloading Files:\n".red
 subdomains.each do |subs| 
   Anemone.crawl(
     subs,
@@ -124,12 +125,12 @@ subdomains.each do |subs|
     :skip_query_strings => true
   ) do |anemone|
       anemone.on_pages_like(doc) do |page|
-    begin
-      filename = File.basename(page.url.request_uri.to_s)
-      File.open("#{@foldername}/#{filename}","wb") {|f| f.write(page.body)}
-      puts "#{page.url}"
-    rescue
-      puts "error while downloading #{page.url}"
+        begin
+          filename = File.basename(page.url.request_uri.to_s)
+          File.open("#{@foldername}/#{filename}","wb") {|f| f.write(page.body)}
+          puts "#{page.url}"
+        rescue
+          puts "error while downloading #{page.url}"
         end
       end
     end
@@ -138,31 +139,35 @@ end
 
 def metadata(files, arg)
   metadata = []
+  port = rand(54000..59000)
+   
     if !files.empty? and !arg[:exif]
-    puts "\nReading MetaData From Files - This may take some time!\n".colorize(:red)
+    Yomu.server(:metadata, custom_port = port)
+    puts "\nReading MetaData From Files - This may take some time!\n".red
     files.each do |file|
-      puts "Processing #{file}".colorize(:green)
-      Yomu.server(:metadata)
+      puts "Processing #{file}".green
       metadata << Yomu.new(file).metadata
-      Yomu.kill_server!
       end
-    metadata
+    Yomu.kill_server!
   end
+  metadata
 end
 
 def filecontent(files, arg)
   alltext = []
+  port = rand(60000..65000)
+
   if arg[:dirtmode]
   if !files.empty? and !arg[:exif]
+    Yomu.server(:text, custom_port = port)
     files.each do |file|
       hash = {}
-      Yomu.server(:text)
         hash[file] = Yomu.new(file).text
-      Yomu.kill_server!
         alltext << hash
       end
-    alltext
+    Yomu.kill_server!
     end
+  alltext
   end
 end
 
@@ -234,7 +239,7 @@ def passlist(content, arg)
       if !words.empty?
         out_file = File.new("#{@foldername}/passlist.txt", "w")
           out_file.puts "\n" + words.join("\n").cyan
-        out_file close
+        out_file.close
       end
     end
   end
@@ -275,7 +280,7 @@ def exif(files, arg)
         exif = Exiftool.new(z)
         exifh = exif.to_hash
         if exifh.has_key?(:gps_latitude)
-            exifarray << "#{exifh[:file_name]},#{exifh[:gps_latitude]},#{exifh[:gps_longitude]}"
+          exifarray << "#{exifh[:file_name]},#{exifh[:gps_latitude]},#{exifh[:gps_longitude]}"
           puts "#{"\n" + exifh[:file_name].light_blue + "\n" + exifh[:gps_latitude].to_s.yellow + " " + exifh[:gps_longitude].to_s.magenta}"
         else
           puts "#{"\n" + exifh[:file_name]} ***Image did not contain GPS data***".red
@@ -285,9 +290,9 @@ def exif(files, arg)
         end
       end
       gmaps = File.new("#{@foldername}/gmaps.csv", "w")
-        gmaps.puts exifarray
+      gmaps.puts exifarray
       gmaps.close
-        puts "\nGoogle Maps Compatible CSV Written to #{@foldername}/gmaps.csv".light_blue
+      puts "\nGoogle Maps Compatible CSV Written to #{@foldername}/gmaps.csv".light_blue
     end
   end
 end
