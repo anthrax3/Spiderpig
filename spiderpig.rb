@@ -297,8 +297,8 @@ def exif(files, arg)
   end
 end
 
-def printer(meta)
-  if meta != nil
+def printer(meta, arg)
+  if meta != nil && !arg[:exif]
     puts "\nPotential Usernames (Document Creator)".light_blue
     puts meta.map { |h| h["Author"] }.compact.reject(&:empty?).uniq
     puts "\nSoftware Used to Create Documents".light_blue
