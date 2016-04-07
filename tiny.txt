@@ -1,5 +1,0 @@
-remote
-test
-www
-images
-documents
