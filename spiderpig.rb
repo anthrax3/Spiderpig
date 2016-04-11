@@ -104,7 +104,6 @@ def download(arg, subdomains)
   else
     doc = /\b.+.jpg|\b.+.tiff/i
   end
-
   if arg[:url]
     puts "\nSearching For Files on #{arg[:url]}".red
   end
@@ -312,7 +311,11 @@ subdomains = subdomains(arg)
 download(arg, subdomains)
 numfiles = Dir["#{@foldername}/*"].length
 puts "Number of Files Downloaded: #{numfiles}".light_blue
-files = Dir.glob("#{@foldername}/*")
+if arg[:offline]
+  files = Dir.glob(ARGV[0] + '/*.*')
+else
+  files = Dir.glob("#{@foldername}/*")
+end
 meta = metadata(files, arg)
 content = filecontent(files, arg)
 emails(content, arg)
