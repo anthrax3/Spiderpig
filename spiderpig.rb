@@ -13,7 +13,7 @@ require 'exiftool_vendored'
 
 banner = <<-OINK
 ┈┈┏━╮╭━┓┈╭━━━━━━━━━━━━━━━━╮
-┈┈┃┏┗┛┓┃╭┫SpiderPig v0.95b┃
+┈┈┃┏┗┛┓┃╭┫SpiderPig v0.97b┃
 ┈┈╰┓▋▋┏╯╯╰━━━━━━━━━━━━━━━━╯
 ┈╭━┻╮╲┗━━━━╮╭╮┈
 ┈┃▎▎┃╲╲╲╲╲╲┣━╯┈
@@ -31,7 +31,7 @@ $stderr.reopen("/dev/null", "w")
 def arguments
 
 opts = Trollop::options do 
-  version "Spiderpig v0.95beta".light_blue
+  version "Spiderpig v0.97beta".light_blue
   banner <<-EOS
   
   Spiderpig is a document metadata harvester that relies on active spidering to find its documents. This is to
@@ -88,6 +88,7 @@ def subdomains(arg)
     Resolv.new(resolvers=[arg[:dns_server]])
       subdomain.chomp!
     ip = Resolv.getaddress "#{subdomain}.#{target}" rescue ""
+    puts subdomain
       if ip != nil
         puts "#{subdomain}.#{target} \t #{ip}"
       subs << "http://#{subdomain}.#{target}"
@@ -121,13 +122,15 @@ subdomains.each do |subs|
     :proxy_host => arg[:proxy],
     :proxy_port => arg[:proxyp],
     :accept_cookies => true,
-    :skip_query_strings => true
+    :skip_query_strings => true,
+    :verbose => false
   ) do |anemone|
       anemone.on_pages_like(doc) do |page|
         begin
           filename = File.basename(page.url.request_uri.to_s)
           File.open("#{@foldername}/#{filename}","wb") {|f| f.write(page.body)}
           puts "#{page.url}"
+          File.open('/tmp/links.txt', 'a+') {|f| f.puts(page.url)}
         rescue
           puts "error while downloading #{page.url}"
         end
