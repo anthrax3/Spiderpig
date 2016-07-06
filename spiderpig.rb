@@ -88,7 +88,6 @@ def subdomains(arg)
     Resolv.new(resolvers=[arg[:dns_server]])
       subdomain.chomp!
     ip = Resolv.getaddress "#{subdomain}.#{target}" rescue ""
-    puts subdomain
       if ip != nil
         puts "#{subdomain}.#{target} \t #{ip}"
       subs << "http://#{subdomain}.#{target}"
